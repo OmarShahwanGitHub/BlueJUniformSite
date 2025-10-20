@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deploy BlueJay Uniform to Cloudflare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #2c5aa0 0%, #4a90e2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5aa0, #4a90e2);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .status-banner {
+            background: #28a745;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 3rem 2rem;
+        }
+
+        .step-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 6px solid #4a90e2;
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #2c5aa0;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .step-card h2 {
+            color: #2c5aa0;
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .step-card h3 {
+            color: #1e3a5f;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .substep {
+            background: white;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border-left: 3px solid #4a90e2;
+        }
+
+        .button {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+            text-align: center;
+        }
+
+        .button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .button-primary {
+            background: #2c5aa0;
+            font-size: 1.2rem;
+            padding: 1.25rem 2.5rem;
+        }
+
+        .button-primary:hover {
+            background: #1e3a5f;
+        }
+
+        .button-secondary {
+            background: #6c757d;
+        }
+
+        .button-secondary:hover {
+            background: #5a6268;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 3rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .checklist {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .checklist-item {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-left: 3px solid #28a745;
+            background: #f8f9fa;
+        }
+
+        .checklist-item::before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        code {
+            background: #e9ecef;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #4a90e2;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0.5rem;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #28a745;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #28a745;
+        }
+
+        ul {
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        li {
+            margin: 0.5rem 0;
+        }
+
+        .video-placeholder {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 3rem;
+            text-align: center;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Deploy Your Site</h1>
+            <p>Get BlueJay Uniform live on Cloudflare Pages in 5 minutes</p>
+        </div>
+
+        <div class="status-banner">
+            ✓ Code Successfully Pushed to GitHub!
+        </div>
+
+        <div class="content">
+            <div class="cta-section">
+                <h2 style="color: #2c5aa0; margin-bottom: 1rem;">Ready to Go Live?</h2>
+                <p style="font-size: 1.1rem; margin-bottom: 2rem;">Your code is on GitHub. Now let's deploy it to the world!</p>
+                <a href="https://pages.cloudflare.com/" target="_blank" class="button button-primary">
+                    Deploy to Cloudflare Pages →
+                </a>
+                <br>
+                <a href="https://github.com/OmarShahwanGitHub/BlueJUniformSite" target="_blank" class="button button-secondary">
+                    View on GitHub
+                </a>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h2>Create Cloudflare Account</h2>
+
+                <div class="substep">
+                    <h3>Visit Cloudflare Pages</h3>
+                    <p>Go to <a href="https://pages.cloudflare.com/" target="_blank">pages.cloudflare.com</a></p>
+                </div>
+
+                <div class="substep">
+                    <h3>Sign Up / Log In</h3>
+                    <p>Create a free account or log in if you already have one</p>
+                    <div class="alert alert-info">
+                        <strong>It's free!</strong> Cloudflare Pages offers unlimited bandwidth and hosting at no cost.
+                    </div>
+                </div>
+
+                <div class="substep">
+                    <h3>Verify Your Email</h3>
+                    <p>Check your email and click the verification link</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h2>Connect GitHub Repository</h2>
+
+                <div class="substep">
+                    <h3>Create a Project</h3>
+                    <p>Click the big <strong>"Create a project"</strong> button</p>
+                </div>
+
+                <div class="substep">
+                    <h3>Connect to Git</h3>
+                    <p>Click <strong>"Connect to Git"</strong> → Select <strong>"GitHub"</strong></p>
+                </div>
+
+                <div class="substep">
+                    <h3>Authorize Cloudflare</h3>
+                    <ul>
+                        <li>Click <strong>"Connect GitHub"</strong></li>
+                        <li>Authorize Cloudflare Pages to access your GitHub</li>
+                        <li>Select "Only select repositories"</li>
+                        <li>Choose <strong>BlueJUniformSite</strong></li>
+                        <li>Click <strong>"Install & Authorize"</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h2>Configure Deployment</h2>
+
+                <div class="substep">
+                    <h3>Select Your Repository</h3>
+                    <p>Find and click <strong>BlueJUniformSite</strong> from the list</p>
+                    <p>Click <strong>"Begin setup"</strong></p>
+                </div>
+
+                <div class="substep">
+                    <h3>Project Settings</h3>
+                    <div class="checklist">
+                        <div class="checklist-item"><strong>Project name:</strong> bluejay-uniform (or your choice)</div>
+                        <div class="checklist-item"><strong>Production branch:</strong> main</div>
+                        <div class="checklist-item"><strong>Framework preset:</strong> None</div>
+                        <div class="checklist-item"><strong>Build command:</strong> (leave empty)</div>
+                        <div class="checklist-item"><strong>Build output directory:</strong> / (forward slash)</div>
+                    </div>
+                </div>
+
+                <div class="substep">
+                    <h3>Deploy!</h3>
+                    <p>Click <strong>"Save and Deploy"</strong></p>
+                    <div class="alert alert-success">
+                        <strong>That's it!</strong> Cloudflare will now build and deploy your site.
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <h2>Wait for Deployment</h2>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h3>Building... (30 seconds)</h3>
+                        <p>Cloudflare is preparing your files</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>Deploying... (1-2 minutes)</h3>
+                        <p>Distributing to global CDN</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>Success! 🎉</h3>
+                        <p>Your site is live!</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>First deployment:</strong> Usually takes 1-3 minutes. Future deployments will be even faster!
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">5</div>
+                <h2>Access Your Live Site</h2>
+
+                <div class="substep">
+                    <h3>Get Your URL</h3>
+                    <p>Cloudflare will give you a URL like:</p>
+                    <code>https://bluejay-uniform.pages.dev</code>
+                    <p style="margin-top: 0.5rem;">or</p>
+                    <code>https://bluejay-uniform-abc.pages.dev</code>
+                </div>
+
+                <div class="substep">
+                    <h3>Visit Your Store</h3>
+                    <p>Click the URL to open your live website!</p>
+                    <div class="alert alert-success">
+                        <strong>🎉 Congratulations!</strong> Your BlueJay Uniform store is now live on the internet!
+                    </div>
+                </div>
+
+                <div class="substep">
+                    <h3>Test with Sandbox Mode</h3>
+                    <p>Your site is currently in sandbox (test) mode. You can test payments with these cards:</p>
+                    <div class="checklist">
+                        <div class="checklist-item"><strong>Visa:</strong> 4111 1111 1111 1111</div>
+                        <div class="checklist-item"><strong>Mastercard:</strong> 5105 1051 0510 5100</div>
+                        <div class="checklist-item"><strong>Expiration:</strong> Any future date</div>
+                        <div class="checklist-item"><strong>CVV:</strong> Any 3 digits</div>
+                        <div class="checklist-item"><strong>ZIP:</strong> Any 5 digits</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <h2 style="color: #2c5aa0; margin-bottom: 1rem;">What's Next?</h2>
+
+                <div style="text-align: left; max-width: 600px; margin: 2rem auto;">
+                    <h3 style="color: #1e3a5f;">Before Accepting Real Payments:</h3>
+                    <ol style="line-height: 2;">
+                        <li><strong>Test thoroughly</strong> in sandbox mode</li>
+                        <li><strong>Set up backend</strong> for secure payment processing</li>
+                        <li><strong>Switch to production</strong> mode (see CLOUDFLARE-DEPLOYMENT.md)</li>
+                        <li><strong>Add custom domain</strong> (optional but recommended)</li>
+                        <li><strong>Create policies</strong> (privacy, terms, returns)</li>
+                    </ol>
+                </div>
+
+                <a href="CLOUDFLARE-DEPLOYMENT.md" class="button">Read Full Deployment Guide</a>
+            </div>
+
+            <div class="alert alert-warning">
+                <h3 style="margin-bottom: 0.5rem;">⚠️ Important: Backend Required for Production</h3>
+                <p>The current site works great for testing, but before accepting real payments, you need to implement a backend server to handle payment processing securely. This protects your Square credentials and ensures PCI compliance.</p>
+                <p style="margin-top: 0.5rem;">See <strong>CLOUDFLARE-DEPLOYMENT.md</strong> for detailed backend setup instructions.</p>
+            </div>
+
+            <div class="step-card" style="border-left-color: #28a745;">
+                <div class="step-number" style="background: #28a745;">✓</div>
+                <h2 style="color: #28a745;">Automatic Updates</h2>
+                <p>Every time you push changes to GitHub, Cloudflare automatically rebuilds and redeploys your site!</p>
+
+                <div class="substep">
+                    <h3>To Update Your Site:</h3>
+                    <ol>
+                        <li>Edit files in your repository</li>
+                        <li>Commit and push to GitHub</li>
+                        <li>Wait 1-3 minutes</li>
+                        <li>Changes are live! 🚀</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <h2 style="color: #2c5aa0; margin-bottom: 1rem;">Need Help?</h2>
+                <p>Comprehensive documentation is available:</p>
+                <div style="margin-top: 2rem;">
+                    <a href="CLOUDFLARE-DEPLOYMENT.md" class="button">Cloudflare Deployment Guide</a>
+                    <a href="README.md" class="button button-secondary">Technical Documentation</a>
+                    <a href="SETUP.html" class="button button-secondary">Setup Guide</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
