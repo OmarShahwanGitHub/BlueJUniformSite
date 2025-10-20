@@ -98,30 +98,35 @@ function renderProducts(products) {
         productsByCategory[product.category].push(product);
     });
 
-    // Render products grouped by category
+    // Define category order with "Other" at the bottom
+    const categoryOrder = ['hijab', 'abaya', 'thawb', 'uniform', 'tunic', 'other'];
+    
+    // Render products grouped by category in specified order
     let html = '';
-    Object.keys(productsByCategory).forEach(category => {
-        const categoryProducts = productsByCategory[category];
-        const categoryName = getCategoryName(category);
-        
-        html += `
-            <div class="category-section">
-                <h2 class="category-header">${categoryName}</h2>
-                <div class="category-products">
-                    ${categoryProducts.map(product => `
-                        <div class="product-card" data-id="${product.id}">
-                            <h3 class="product-name">${product.name}</h3>
-                            ${product.variation !== 'Regular' ? `<p class="product-variation">${product.variation}</p>` : ''}
-                            ${product.description ? `<p class="product-description">${product.description}</p>` : ''}
-                            <div class="product-price">${formatPrice(product.price)}</div>
-                            <button class="add-to-cart-btn" onclick="addToCart('${product.id}')">
-                                Add to Cart
-                            </button>
-                        </div>
-                    `).join('')}
+    categoryOrder.forEach(category => {
+        if (productsByCategory[category] && productsByCategory[category].length > 0) {
+            const categoryProducts = productsByCategory[category];
+            const categoryName = getCategoryName(category);
+            
+            html += `
+                <div class="category-section">
+                    <h2 class="category-header">${categoryName}</h2>
+                    <div class="category-products">
+                        ${categoryProducts.map(product => `
+                            <div class="product-card" data-id="${product.id}">
+                                <h3 class="product-name">${product.name}</h3>
+                                ${product.variation !== 'Regular' ? `<p class="product-variation">${product.variation}</p>` : ''}
+                                ${product.description ? `<p class="product-description">${product.description}</p>` : ''}
+                                <div class="product-price">${formatPrice(product.price)}</div>
+                                <button class="add-to-cart-btn" onclick="addToCart('${product.id}')">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        }
     });
 
     productsGrid.innerHTML = html;
