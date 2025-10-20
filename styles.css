@@ -124,14 +124,29 @@ body {
     gap: 1rem;
     margin-bottom: 2rem;
     flex-wrap: wrap;
+    align-items: end;
 }
 
 .filter-group, .search-group {
     flex: 1;
     min-width: 250px;
+    display: flex;
+    flex-direction: column;
 }
 
 .filter-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.search-group {
+    position: relative;
+}
+
+.search-group::before {
+    content: "Search:";
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
