@@ -1,0 +1,125 @@
+// Main application logic for store page
+
+let currentProducts = [...PRODUCTS];
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+    renderProducts(currentProducts);
+    setupEventListeners();
+});
+
+// Setup event listeners
+function setupEventListeners() {
+    // Category filter
+    const categoryFilter = document.getElementById('categoryFilter');
+    categoryFilter.addEventListener('change', (e) => {
+        filterAndRenderProducts();
+    });
+
+    // Search input
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+        filterAndRenderProducts();
+    });
+
+    // Cart button
+    const cartBtn = document.getElementById('cartBtn');
+    const cartModal = document.getElementById('cartModal');
+    const closeCart = document.getElementById('closeCart');
+
+    cartBtn.addEventListener('click', () => {
+        cart.renderCartModal();
+        cartModal.classList.add('active');
+    });
+
+    closeCart.addEventListener('click', () => {
+        cartModal.classList.remove('active');
+    });
+
+    // Close modal when clicking outside
+    cartModal.addEventListener('click', (e) => {
+        if (e.target === cartModal) {
+            cartModal.classList.remove('active');
+        }
+    });
+
+    // Checkout button
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    checkoutBtn.addEventListener('click', () => {
+        if (cart.items.length > 0) {
+            window.location.href = 'checkout.html';
+        }
+    });
+}
+
+// Filter and render products
+function filterAndRenderProducts() {
+    const categoryFilter = document.getElementById('categoryFilter');
+    const searchInput = document.getElementById('searchInput');
+
+    const category = categoryFilter.value;
+    const searchQuery = searchInput.value.trim();
+
+    let filtered = PRODUCTS;
+
+    // Apply category filter
+    if (category !== 'all') {
+        filtered = filtered.filter(product => product.category === category);
+    }
+
+    // Apply search filter
+    if (searchQuery) {
+        const lowerQuery = searchQuery.toLowerCase();
+        filtered = filtered.filter(product =>
+            product.name.toLowerCase().includes(lowerQuery) ||
+            product.description.toLowerCase().includes(lowerQuery) ||
+            product.variation.toLowerCase().includes(lowerQuery)
+        );
+    }
+
+    renderProducts(filtered);
+}
+
+// Render products to the grid
+function renderProducts(products) {
+    const productsGrid = document.getElementById('productsGrid');
+
+    if (products.length === 0) {
+        productsGrid.innerHTML = '<div class="loading">No products found</div>';
+        return;
+    }
+
+    productsGrid.innerHTML = products.map(product => `
+        <div class="product-card" data-id="${product.id}">
+            <h3 class="product-name">${product.name}</h3>
+            ${product.variation !== 'Regular' ? `<p class="product-variation">${product.variation}</p>` : ''}
+            ${product.description ? `<p class="product-description">${product.description}</p>` : ''}
+            <div class="product-price">${formatPrice(product.price)}</div>
+            <button class="add-to-cart-btn" onclick="addToCart('${product.id}')">
+                Add to Cart
+            </button>
+        </div>
+    `).join('');
+}
+
+// Add product to cart
+function addToCart(productId) {
+    const product = PRODUCTS.find(p => p.id === productId);
+    if (product) {
+        cart.addItem(product);
+    }
+}
+
+// Category mapping helper
+function getCategoryName(category) {
+    const categoryNames = {
+        'hijab': 'Hijabs & Accessories',
+        'abaya': 'Abayas',
+        'thawb': 'Thawbs',
+        'uniform': 'School Uniforms',
+        'tunic': 'Tunics',
+        'wholesale': 'Wholesale',
+        'other': 'Other Items'
+    };
+    return categoryNames[category] || category;
+}
