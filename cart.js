@@ -41,6 +41,12 @@ class ShoppingCart {
     removeItem(productId) {
         this.items = this.items.filter(item => item.id !== productId);
         this.saveCart();
+        
+        // Update cart modal content if it's currently open
+        const cartModal = document.getElementById('cartModal');
+        if (cartModal && cartModal.classList.contains('active')) {
+            this.renderCartModal();
+        }
     }
 
     // Update item quantity
@@ -52,6 +58,12 @@ class ShoppingCart {
                 this.removeItem(productId);
             } else {
                 this.saveCart();
+            }
+            
+            // Update cart modal content if it's currently open
+            const cartModal = document.getElementById('cartModal');
+            if (cartModal && cartModal.classList.contains('active')) {
+                this.renderCartModal();
             }
         }
     }
