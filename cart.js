@@ -7,13 +7,13 @@ class ShoppingCart {
 
     // Load cart from localStorage
     loadCart() {
-        const savedCart = localStorage.getItem('bluejay-cart');
+        const savedCart = localStorage.getItem('bluej-cart');
         return savedCart ? JSON.parse(savedCart) : [];
     }
 
     // Save cart to localStorage
     saveCart() {
-        localStorage.setItem('bluejay-cart', JSON.stringify(this.items));
+        localStorage.setItem('bluej-cart', JSON.stringify(this.items));
         this.updateCartDisplay();
     }
 
