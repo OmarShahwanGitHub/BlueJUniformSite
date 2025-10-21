@@ -1,6 +1,6 @@
 # BlueJay Uniform - Point of Sale Website
 
-A modern e-commerce website for BlueJ Uniform, a Tampa-based business specializing in Islamic uniforms and apparel for schools like Universal Academy of Florida and Bayaan Academy.
+A modern e-commerce website for BlueJ Uniform, a Tampa-based business specializing in Islamic uniforms and apparel for schools like Universal Academy of Florida, Bayaan Academy, and Hifz Academy.
 
 ## Features
 
