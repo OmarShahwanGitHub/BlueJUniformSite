@@ -10,10 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Setup event listeners
 function setupEventListeners() {
-    // Category filter
-    const categoryFilter = document.getElementById('categoryFilter');
-    categoryFilter.addEventListener('change', (e) => {
-        filterAndRenderProducts();
+    // Category tabs
+    const navTabs = document.querySelectorAll('.nav-tab');
+    navTabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            // Remove active class from all tabs
+            navTabs.forEach(t => t.classList.remove('active'));
+            // Add active class to clicked tab
+            e.target.classList.add('active');
+            
+            // Update current category and filter products
+            const category = e.target.getAttribute('data-category');
+            filterAndRenderProducts(category);
+        });
     });
 
     // Search input
@@ -53,12 +62,16 @@ function setupEventListeners() {
 }
 
 // Filter and render products
-function filterAndRenderProducts() {
-    const categoryFilter = document.getElementById('categoryFilter');
+function filterAndRenderProducts(selectedCategory = null) {
     const searchInput = document.getElementById('searchInput');
-
-    const category = categoryFilter.value;
     const searchQuery = searchInput.value.trim();
+
+    // Get category from active tab if not provided
+    let category = selectedCategory;
+    if (!category) {
+        const activeTab = document.querySelector('.nav-tab.active');
+        category = activeTab ? activeTab.getAttribute('data-category') : 'all';
+    }
 
     let filtered = PRODUCTS;
 
